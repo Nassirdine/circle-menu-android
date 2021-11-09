@@ -15,8 +15,10 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
 
@@ -316,6 +318,7 @@ public class CircleMenuView extends FrameLayout {
         mRingView = findViewById(R.id.ring_view);
     }
 
+    /*
     private void initMenu(int menuButtonColor) {
         final AnimatorListenerAdapter animListener = new AnimatorListenerAdapter() {
             @Override
@@ -359,9 +362,113 @@ public class CircleMenuView extends FrameLayout {
             }
         });
     }
+    */
+
+    private void initMenu(int menuButtonColor) {
+        final AnimatorListenerAdapter animListener = new AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+                if (mListener != null) {
+                    if (mClosedState) {
+                        mListener.onMenuOpenAnimationStart(CircleMenuView.this);
+                    } else {
+                        mListener.onMenuCloseAnimationStart(CircleMenuView.this);
+                    }
+                }
+            }
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                if (mListener != null) {
+                    if (mClosedState) {
+                        mListener.onMenuOpenAnimationEnd(CircleMenuView.this);
+                    } else {
+                        mListener.onMenuCloseAnimationEnd(CircleMenuView.this);
+                    }
+                }
+
+                mClosedState = !mClosedState;
+            }
+        };
+        LayoutInflater inflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        View view = inflater.inflate(R.layout.circle_menu, this);
+
+        mMenuButton = view.findViewById(R.id.circle_menu_main_button);
+        mMenuButton.setImageResource(mIconMenu);
+        mMenuButton.setBackgroundTintList(ColorStateList.valueOf(menuButtonColor));
+        mMenuButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (mIsAnimating) {
+                    return;
+                }
+
+                final Animator animation = mClosedState ? getOpenMenuAnimation() : getCloseMenuAnimation();
+                animation.setDuration(mClosedState ? mDurationClose : mDurationOpen);
+                animation.addListener(animListener);
+                animation.start();
+            }
+        });
+    }
+
+    private static boolean buttonTruth = true;
+
 
     private void initButtons(@NonNull Context context, @NonNull List<Integer> icons, @NonNull List<Integer> colors) {
         final int buttonsCount = Math.min(icons.size(), colors.size());
+
+        //buttonTruth = false;
+        if (buttonTruth == true) { // put circleMenus in each button slot
+            buttonTruth = false;
+            for (int i = 0; i < buttonsCount; i++) {
+                Log.d("Debug", "initButtons: Circle menu" + i);
+                //mMenuButton
+                final CircleMenuView circleMenuView = new CircleMenuView(context, icons, colors);
+
+                //ViewGroup parent = ((ViewGroup) circleMenuView.mMenuButton.getParent());
+
+                //if (parent != null) {
+                //    parent.removeView(circleMenuView.mMenuButton);
+                //}
+                addView(circleMenuView);
+                mButtons.add(circleMenuView.mMenuButton);
+                circleMenuView.mMenuButton.setVisibility(INVISIBLE);
+                Log.d("Debug", "initButtons: circleMenuView.mMenuButton="
+                        + (Object) (circleMenuView.mMenuButton));
+            }
+            Log.d("Debug", "initButtons: num buttons=" + mButtons.size()
+                    + "mMenuButton.getID() = " + (Object)mMenuButton);
+
+            //return initButtons(context, icons, colors,  count);
+
+        }
+        //occurs after first run to create the new view
+        else { // in lower menu
+
+            for (int i = 0; i < buttonsCount; i++) {
+                Log.d("Debug", "initButtons: Submenu " + i);
+
+                final FloatingActionButton button = new FloatingActionButton(context);
+
+                button.setImageResource(icons.get(i));
+                button.setBackgroundTintList(ColorStateList.valueOf(colors.get(i)));
+                button.setClickable(true);
+                button.setOnClickListener(new OnButtonClickListener());
+                button.setOnLongClickListener(new OnButtonLongClickListener());
+                button.setScaleX(0);
+                button.setScaleY(0);
+                button.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
+                button.setVisibility(VISIBLE);
+                addView(button);
+                mButtons.add(button);
+                Log.d("Debug", "initButtons: added button=" +
+                        (Object)button);
+            }
+            //mMenuButton.setVisibility(INVISIBLE);
+            Log.d("Debug", "initButtons: num submenu buttons=" + mButtons.size()
+            + "mMenuButton.getID() = " + (Object)mMenuButton);
+
+        }
+/*
         for (int i = 0; i < buttonsCount; i++) {
             final FloatingActionButton button = new FloatingActionButton(context);
             button.setImageResource(icons.get(i));
@@ -376,9 +483,13 @@ public class CircleMenuView extends FrameLayout {
             addView(button);
             mButtons.add(button);
         }
+*/
+
     }
 
     private void offsetAndScaleButtons(float centerX, float centerY, float angleStep, float offset, float scale) {
+        String message = "mButtons.size() = " + mButtons.size();
+        Log.d("Debug", message);
         for (int i = 0, cnt = mButtons.size(); i < cnt; i++) {
             final float angle = angleStep * i - 90;
             final float x = (float) Math.cos(Math.toRadians(angle)) * offset;
@@ -389,6 +500,7 @@ public class CircleMenuView extends FrameLayout {
             button.setY(centerY + y);
             button.setScaleX(1.0f * scale);
             button.setScaleY(1.0f * scale);
+            //button.setVisibility(VISIBLE);
         }
     }
 
@@ -416,7 +528,7 @@ public class CircleMenuView extends FrameLayout {
         });
 
         final float elevation = mMenuButton.getCompatElevation();
-
+        Log.d("Debug", "making ringview invisisble " + (Object)mRingView);
         mRingView.setVisibility(View.INVISIBLE);
         mRingView.setStartAngle(rStartAngle);
 
@@ -510,6 +622,13 @@ public class CircleMenuView extends FrameLayout {
             @Override
             public void onAnimationStart(Animator animation) {
                 for (View view: mButtons) {
+                    String message = "make button visible... " + (Object)view +
+                            "," + view.getY();
+                    if (view instanceof CircleMenuView)
+                        message = "make circle menu visible";
+                    Log.d("Debug", message);
+                    
+
                     view.setVisibility(View.VISIBLE);
                 }
             }
@@ -519,6 +638,8 @@ public class CircleMenuView extends FrameLayout {
             public void onAnimationUpdate(ValueAnimator valueAnimator) {
                 final float fraction = valueAnimator.getAnimatedFraction();
                 final float value = (float)valueAnimator.getAnimatedValue();
+                Log.d("Debug", "getOpenMenuAnimation: " + centerX + "," + centerY);
+
                 offsetAndScaleButtons(centerX, centerY, angleStep, value, fraction);
             }
         });
@@ -532,6 +653,8 @@ public class CircleMenuView extends FrameLayout {
             }
             @Override
             public void onAnimationEnd(Animator animation) {
+                Log.d("Debug", "onAnimationEnd: ");
+
                 mIsAnimating = false;
             }
         });
@@ -549,6 +672,8 @@ public class CircleMenuView extends FrameLayout {
             @Override
             public void onAnimationStart(Animator animation) {
                 for (View view: mButtons) {
+                    Log.d("Debug", "making button invisisble " + (Object)view);
+
                     view.setVisibility(View.INVISIBLE);
                 }
             }
@@ -727,10 +852,16 @@ public class CircleMenuView extends FrameLayout {
             mMenuButton.setImageResource(open ? mIconClose : mIconMenu);
             mMenuButton.setAlpha(open ? DEFAULT_CLOSE_ICON_ALPHA : 1f);
 
+
             final int visibility = open ? View.VISIBLE : View.INVISIBLE;
             for (View view: mButtons) {
+                if (!open) {
+                    Log.d("Debug", "making view invisible " + (Object)view);
+
+                }
                 view.setVisibility(visibility);
             }
+            Log.d("Debug", "openOrClose: " + angleStep);
 
             offsetAndScaleButtons(centerX, centerY, angleStep, offset, scale);
         }
