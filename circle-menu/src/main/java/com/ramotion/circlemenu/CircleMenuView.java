@@ -46,6 +46,8 @@ public class CircleMenuView extends FrameLayout {
 
     private final List<View> mButtons = new ArrayList<>();
     private final Rect mButtonRect = new Rect();
+    private int menuIndex;
+    private int numMenus;
 
     private FloatingActionButton mMenuButton;
     private RingEffectView mRingView;
@@ -193,9 +195,11 @@ public class CircleMenuView extends FrameLayout {
         this(context, attrs, 0);
     }
 
+
     public CircleMenuView(@NonNull Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
         super(context, attrs, defStyleAttr);
-
+        menuIndex = -1;
+        numMenus = -1;
         if (attrs == null) {
             throw new IllegalArgumentException("No buttons icons or colors set");
         }
@@ -247,6 +251,13 @@ public class CircleMenuView extends FrameLayout {
         initButtons(context, icons, colors);
     }
 
+
+    public CircleMenuView(@NonNull Context context, @NonNull List<Integer> icons, @NonNull List<Integer> colors,
+                          int menuIndex, int numMenus) {
+        this(context, icons, colors);
+        this.menuIndex = menuIndex;
+        this.numMenus = numMenus;
+    }
     /**
      * Constructor for creation CircleMenuView in code, not in xml-layout.
      * @param context current context, will be used to access resources.
@@ -313,8 +324,11 @@ public class CircleMenuView extends FrameLayout {
         final float buttonSize = DEFAULT_BUTTON_SIZE * density;
 
         mRingRadius = (int) (buttonSize + (mDistance - buttonSize / 2));
-        mDesiredSize = (int) (mRingRadius * 2 * DEFAULT_RING_SCALE_RATIO);
 
+        mDesiredSize = (int) (mRingRadius * 2 * DEFAULT_RING_SCALE_RATIO);
+        if (buttonTruth) {
+            mDesiredSize = 2 * mDesiredSize;
+        }
         mRingView = findViewById(R.id.ring_view);
     }
 
@@ -422,7 +436,7 @@ public class CircleMenuView extends FrameLayout {
             for (int i = 0; i < buttonsCount; i++) {
                 Log.d("Debug", "initButtons: Circle menu" + i);
                 //mMenuButton
-                final CircleMenuView circleMenuView = new CircleMenuView(context, icons, colors);
+                final CircleMenuView circleMenuView = new CircleMenuView(context, icons, colors, i, buttonsCount);
 
                 //ViewGroup parent = ((ViewGroup) circleMenuView.mMenuButton.getParent());
 
@@ -490,8 +504,18 @@ public class CircleMenuView extends FrameLayout {
     private void offsetAndScaleButtons(float centerX, float centerY, float angleStep, float offset, float scale) {
         String message = "mButtons.size() = " + mButtons.size();
         Log.d("Debug", message);
+        // begin: this code works with 5 menus, but may fail for others
+        if (numMenus != -1) {
+            angleStep = 180f / numMenus;
+        } // :end
+
         for (int i = 0, cnt = mButtons.size(); i < cnt; i++) {
-            final float angle = angleStep * i - 90;
+            int delta = 90;
+            // begin: this code works with 5 menus, but may fail for others
+            if (menuIndex != -1) {
+                delta = 160 - (360*menuIndex)/numMenus;
+            } // :end
+            final float angle = angleStep * i - delta;
             final float x = (float) Math.cos(Math.toRadians(angle)) * offset;
             final float y = (float) Math.sin(Math.toRadians(angle)) * offset;
 
@@ -614,6 +638,7 @@ public class CircleMenuView extends FrameLayout {
         final float centerY = mMenuButton.getY();
 
         final int buttonsCount = mButtons.size();
+        // this is the one it's using
         final float angleStep = 360f / buttonsCount;
 
         final ValueAnimator buttonsAppear = ValueAnimator.ofFloat(0f, mDistance);
@@ -844,7 +869,7 @@ public class CircleMenuView extends FrameLayout {
             final float centerY = mMenuButton.getY();
 
             final int buttonsCount = mButtons.size();
-            final float angleStep = 360f / buttonsCount;
+            final float angleStep = 180f / buttonsCount;
 
             final float offset = open ? mDistance : 0f;
             final float scale = open ? 1f : 0f;
