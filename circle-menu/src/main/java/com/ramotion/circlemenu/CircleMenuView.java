@@ -354,11 +354,9 @@ public class CircleMenuView extends FrameLayout {
                         mListener.onMenuCloseAnimationEnd(CircleMenuView.this);
                     }
                 }
-
                 mClosedState = !mClosedState;
             }
         };
-
         mMenuButton = findViewById(R.id.circle_menu_main_button);
         mMenuButton.setImageResource(mIconMenu);
         mMenuButton.setBackgroundTintList(ColorStateList.valueOf(menuButtonColor));
@@ -368,7 +366,6 @@ public class CircleMenuView extends FrameLayout {
                 if (mIsAnimating) {
                     return;
                 }
-
                 final Animator animation = mClosedState ? getOpenMenuAnimation() : getCloseMenuAnimation();
                 animation.setDuration(mClosedState ? mDurationClose : mDurationOpen);
                 animation.addListener(animListener);
@@ -458,7 +455,7 @@ public class CircleMenuView extends FrameLayout {
         //occurs after first run to create the new view
         else { // in lower menu
 
-            for (int i = 0; i < buttonsCount; i++) {
+            for (int i = 0; i < 3; i++) {
                 Log.d("Debug", "initButtons: Submenu " + i);
 
                 final FloatingActionButton button = new FloatingActionButton(context);
@@ -479,7 +476,7 @@ public class CircleMenuView extends FrameLayout {
             }
             //mMenuButton.setVisibility(INVISIBLE);
             Log.d("Debug", "initButtons: num submenu buttons=" + mButtons.size()
-            + "mMenuButton.getID() = " + (Object)mMenuButton);
+                    + "mMenuButton.getID() = " + (Object)mMenuButton);
 
         }
 /*
@@ -493,7 +490,6 @@ public class CircleMenuView extends FrameLayout {
             button.setScaleX(0);
             button.setScaleY(0);
             button.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-
             addView(button);
             mButtons.add(button);
         }
@@ -506,14 +502,14 @@ public class CircleMenuView extends FrameLayout {
         Log.d("Debug", message);
         // begin: this code works with 5 menus, but may fail for others
         if (numMenus != -1) {
-            angleStep = 180f / numMenus;
+            angleStep = 230f / numMenus;
         } // :end
 
         for (int i = 0, cnt = mButtons.size(); i < cnt; i++) {
             int delta = 90;
             // begin: this code works with 5 menus, but may fail for others
             if (menuIndex != -1) {
-                delta = 160 - (360*menuIndex)/numMenus;
+                delta = 135 - (360*menuIndex)/ numMenus;
             } // :end
             final float angle = angleStep * i - delta;
             final float x = (float) Math.cos(Math.toRadians(angle)) * offset;
@@ -652,7 +648,7 @@ public class CircleMenuView extends FrameLayout {
                     if (view instanceof CircleMenuView)
                         message = "make circle menu visible";
                     Log.d("Debug", message);
-                    
+
 
                     view.setVisibility(View.VISIBLE);
                 }
