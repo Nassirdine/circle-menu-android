@@ -407,6 +407,8 @@ public class CircleMenuView extends FrameLayout {
         mMenuButton.setImageResource(mIconMenu);
         mMenuButton.setBackgroundTintList(ColorStateList.valueOf(menuButtonColor));
         mMenuButton.setOnClickListener(new OnClickListener() {
+
+            //Send a message that the other buttons will listen too/for
             @Override
             public void onClick(View view) {
                 if (mIsAnimating) {
