@@ -13,6 +13,7 @@ import android.content.res.ColorStateList;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -25,6 +26,7 @@ import android.widget.FrameLayout;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import androidx.annotation.AttrRes;
@@ -37,7 +39,7 @@ import androidx.core.view.ViewCompat;
 /**
  * CircleMenuView
  */
-public class CircleMenuView extends FrameLayout {
+public class CircleMenuView extends FrameLayout{
 
     private static final int DEFAULT_BUTTON_SIZE = 56;
     private static final float DEFAULT_DISTANCE = DEFAULT_BUTTON_SIZE * 1.5f;
@@ -45,6 +47,8 @@ public class CircleMenuView extends FrameLayout {
     private static final float DEFAULT_CLOSE_ICON_ALPHA = 0.3f;
 
     private final List<View> mButtons = new ArrayList<>();
+    private final List<Integer> IconEmotionMenuList = new ArrayList<>();
+    //private final List<Integer> IconActionMenuList = new ArrayList<>();
     private final Rect mButtonRect = new Rect();
     private int menuIndex;
     private int numMenus;
@@ -56,6 +60,7 @@ public class CircleMenuView extends FrameLayout {
     private boolean mIsAnimating = false;
 
     private int mIconMenu;
+    private int mIconHappiness, mIconFear, mIconSadness, mIconAnger, mIconDisgust;
     private int mIconClose;
     private int mDurationRing;
     private int mLongClickDurationRing;
@@ -230,7 +235,19 @@ public class CircleMenuView extends FrameLayout {
             }
 
             mIconMenu = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_menu_black_24dp);
+            //new icons for basic emotions
+            mIconHappiness = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_happiness);
+            mIconSadness = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_sadness);
+            mIconAnger = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_anger);
+            mIconDisgust = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_disgust);
+            mIconFear = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_fear);
             mIconClose = a.getResourceId(R.styleable.CircleMenuView_icon_close, R.drawable.ic_close_black_24dp);
+
+            IconEmotionMenuList.add(mIconHappiness);
+            IconEmotionMenuList.add(mIconSadness);
+            IconEmotionMenuList.add(mIconAnger);
+            IconEmotionMenuList.add(mIconDisgust);
+            IconEmotionMenuList.add(mIconFear);
 
             mDurationRing = a.getInteger(R.styleable.CircleMenuView_duration_ring, getResources().getInteger(android.R.integer.config_mediumAnimTime));
             mLongClickDurationRing = a.getInteger(R.styleable.CircleMenuView_long_click_duration_ring, getResources().getInteger(android.R.integer.config_longAnimTime));
@@ -270,7 +287,7 @@ public class CircleMenuView extends FrameLayout {
         final float density = context.getResources().getDisplayMetrics().density;
         final float defaultDistance = DEFAULT_DISTANCE * density;
 
-        mIconMenu = R.drawable.ic_menu_black_24dp;
+        //mIconMenu = R.drawable.ic_menu_black_24dp;
         mIconClose = R.drawable.ic_close_black_24dp;
 
         mDurationRing = getResources().getInteger(android.R.integer.config_mediumAnimTime);
@@ -405,6 +422,7 @@ public class CircleMenuView extends FrameLayout {
 
         mMenuButton = view.findViewById(R.id.circle_menu_main_button);
         mMenuButton.setImageResource(mIconMenu);
+        Log.d("debug", "initMenu: Number of Buttons" + mButtons.size());
         mMenuButton.setBackgroundTintList(ColorStateList.valueOf(menuButtonColor));
         mMenuButton.setOnClickListener(new OnClickListener() {
 
@@ -432,7 +450,7 @@ public class CircleMenuView extends FrameLayout {
         //buttonTruth = false;
         if (buttonTruth == true) { // put circleMenus in each button slot
             buttonTruth = false;
-            for (int i = 0; i < buttonsCount; i++) {
+            for (int i = 0; i < IconEmotionMenuList.size(); i++) {
                 Log.d("Debug", "initButtons: Circle menu" + i);
                 //mMenuButton
                 final CircleMenuView circleMenuView = new CircleMenuView(context, icons, colors, i, buttonsCount);
@@ -444,6 +462,7 @@ public class CircleMenuView extends FrameLayout {
                 //}
                 addView(circleMenuView);
                 mButtons.add(circleMenuView.mMenuButton);
+                //mMenuButton.setImageResource(IconEmotionMenuList.get(i));
                 circleMenuView.mMenuButton.setVisibility(INVISIBLE);
                 Log.d("Debug", "initButtons: circleMenuView.mMenuButton="
                         + (Object) (circleMenuView.mMenuButton));
@@ -703,7 +722,7 @@ public class CircleMenuView extends FrameLayout {
             @Override
             public void onAnimationEnd(Animator animation) {
                 mMenuButton.setRotation(60f);
-                mMenuButton.setImageResource(mIconMenu);
+                mMenuButton.setImageResource(mIconHappiness);
             }
         });
 
@@ -731,12 +750,12 @@ public class CircleMenuView extends FrameLayout {
     }
 
     public void setIconMenu(@DrawableRes int iconId) {
-        mIconMenu = iconId;
+        mIconHappiness = iconId;
     }
 
     @DrawableRes
     public int getIconMenu() {
-        return mIconMenu;
+        return mIconHappiness;
     }
 
     public void setIconClose(@DrawableRes int iconId) {
@@ -872,7 +891,7 @@ public class CircleMenuView extends FrameLayout {
             final float offset = open ? mDistance : 0f;
             final float scale = open ? 1f : 0f;
 
-            mMenuButton.setImageResource(open ? mIconClose : mIconMenu);
+            mMenuButton.setImageResource(open ? mIconClose : mIconHappiness);
             mMenuButton.setAlpha(open ? DEFAULT_CLOSE_ICON_ALPHA : 1f);
 
 
