@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <array name="emotion_icons">
+        <item>@drawable/ic_text_anger</item>
+        <item>@drawable/ic_text_disgust</item>
+        <item>@drawable/ic_text_fear</item>
+        <item>@drawable/ic_text_happiness</item>
+        <item>@drawable/ic_text_sadness</item>
+    </array>
+
+    <array name="action_icons">
+        <item> </item>
+        <item> </item>
+        <item> </item>
+        <item> </item>
+        <item> </item>
+    </array>
+
+</resources>

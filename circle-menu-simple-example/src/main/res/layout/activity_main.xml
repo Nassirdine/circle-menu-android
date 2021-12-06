@@ -26,15 +26,5 @@
                     app:button_colors="@array/colors"
                     app:button_icons="@array/icons"
                     android:orientation="vertical"/>
-
-
-
         </LinearLayout>
-
-
-
-
-
-
-
 </androidx.constraintlayout.widget.ConstraintLayout>

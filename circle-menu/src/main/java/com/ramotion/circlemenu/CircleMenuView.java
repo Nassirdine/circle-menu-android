@@ -10,9 +10,11 @@ import android.animation.PropertyValuesHolder;
 import android.animation.ValueAnimator;
 import android.content.Context;
 import android.content.res.ColorStateList;
+import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.Icon;
 import android.os.Build;
 import android.util.AttributeSet;
@@ -22,6 +24,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -39,7 +42,7 @@ import androidx.core.view.ViewCompat;
 /**
  * CircleMenuView
  */
-public class CircleMenuView extends FrameLayout{
+public class CircleMenuView extends FrameLayout {
 
     private static final int DEFAULT_BUTTON_SIZE = 56;
     private static final float DEFAULT_DISTANCE = DEFAULT_BUTTON_SIZE * 1.5f;
@@ -47,8 +50,7 @@ public class CircleMenuView extends FrameLayout{
     private static final float DEFAULT_CLOSE_ICON_ALPHA = 0.3f;
 
     private final List<View> mButtons = new ArrayList<>();
-    private final List<Integer> IconEmotionMenuList = new ArrayList<>();
-    //private final List<Integer> IconActionMenuList = new ArrayList<>();
+    //privatfinal List<Integer> IconActionMenuList = new ArrayList<>();
     private final Rect mButtonRect = new Rect();
     private int menuIndex;
     private int numMenus;
@@ -73,7 +75,7 @@ public class CircleMenuView extends FrameLayout{
 
     private EventListener mListener;
 
-    /**
+    /**m
      * CircleMenu event listener.
      */
     public static class EventListener {
@@ -205,6 +207,8 @@ public class CircleMenuView extends FrameLayout{
         super(context, attrs, defStyleAttr);
         menuIndex = -1;
         numMenus = -1;
+
+
         if (attrs == null) {
             throw new IllegalArgumentException("No buttons icons or colors set");
         }
@@ -213,12 +217,14 @@ public class CircleMenuView extends FrameLayout{
         final List<Integer> icons;
         final List<Integer> colors;
 
+        List<Integer> iconEmotionMenuList = new ArrayList<>();
         final TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.CircleMenuView, 0, 0);
         try {
             final int iconArrayId = a.getResourceId(R.styleable.CircleMenuView_button_icons, 0);
             final int colorArrayId = a.getResourceId(R.styleable.CircleMenuView_button_colors, 0);
 
             final TypedArray iconsIds = getResources().obtainTypedArray(iconArrayId);
+
             try {
                 final int[] colorsIds = getResources().getIntArray(colorArrayId);
                 final int buttonsCount = Math.min(iconsIds.length(), colorsIds.length);
@@ -234,6 +240,7 @@ public class CircleMenuView extends FrameLayout{
                 iconsIds.recycle();
             }
 
+
             mIconMenu = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_menu_black_24dp);
             //new icons for basic emotions
             mIconHappiness = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_happiness);
@@ -241,13 +248,14 @@ public class CircleMenuView extends FrameLayout{
             mIconAnger = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_anger);
             mIconDisgust = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_disgust);
             mIconFear = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_fear);
+
             mIconClose = a.getResourceId(R.styleable.CircleMenuView_icon_close, R.drawable.ic_close_black_24dp);
 
-            IconEmotionMenuList.add(mIconHappiness);
-            IconEmotionMenuList.add(mIconSadness);
-            IconEmotionMenuList.add(mIconAnger);
-            IconEmotionMenuList.add(mIconDisgust);
-            IconEmotionMenuList.add(mIconFear);
+            iconEmotionMenuList.add(mIconHappiness);
+            iconEmotionMenuList.add(mIconSadness);
+            iconEmotionMenuList.add(mIconAnger);
+            iconEmotionMenuList.add(mIconDisgust);
+            iconEmotionMenuList.add(mIconFear);
 
             mDurationRing = a.getInteger(R.styleable.CircleMenuView_duration_ring, getResources().getInteger(android.R.integer.config_mediumAnimTime));
             mLongClickDurationRing = a.getInteger(R.styleable.CircleMenuView_long_click_duration_ring, getResources().getInteger(android.R.integer.config_longAnimTime));
@@ -265,7 +273,7 @@ public class CircleMenuView extends FrameLayout{
 
         initLayout(context);
         initMenu(menuButtonColor);
-        initButtons(context, icons, colors);
+        initButtons(context, iconEmotionMenuList, colors);
     }
 
 
@@ -274,6 +282,14 @@ public class CircleMenuView extends FrameLayout{
         this(context, icons, colors);
         this.menuIndex = menuIndex;
         this.numMenus = numMenus;
+
+
+        Resources res = getResources();
+        TypedArray emotion_icons = getResources().obtainTypedArray(R.array.emotion_icons);
+        Drawable drawable = emotion_icons.getDrawable(0);
+
+
+
     }
     /**
      * Constructor for creation CircleMenuView in code, not in xml-layout.
@@ -421,7 +437,10 @@ public class CircleMenuView extends FrameLayout{
         View view = inflater.inflate(R.layout.circle_menu, this);
 
         mMenuButton = view.findViewById(R.id.circle_menu_main_button);
-        mMenuButton.setImageResource(mIconMenu);
+
+            mMenuButton.setImageResource(mIconMenu);
+
+
         Log.d("debug", "initMenu: Number of Buttons" + mButtons.size());
         mMenuButton.setBackgroundTintList(ColorStateList.valueOf(menuButtonColor));
         mMenuButton.setOnClickListener(new OnClickListener() {
@@ -450,29 +469,32 @@ public class CircleMenuView extends FrameLayout{
         //buttonTruth = false;
         if (buttonTruth == true) { // put circleMenus in each button slot
             buttonTruth = false;
-            for (int i = 0; i < IconEmotionMenuList.size(); i++) {
+            for (int i = 0; i < icons.size(); i++) {
                 Log.d("Debug", "initButtons: Circle menu" + i);
                 //mMenuButton
-                final CircleMenuView circleMenuView = new CircleMenuView(context, icons, colors, i, buttonsCount);
+                    final CircleMenuView circleMenuView = new CircleMenuView(context, icons, colors, i, buttonsCount);
 
-                //ViewGroup parent = ((ViewGroup) circleMenuView.mMenuButton.getParent());
+                    //ViewGroup parent = ((ViewGroup) circleMenuView.mMenuButton.getParent());
 
-                //if (parent != null) {
-                //    parent.removeView(circleMenuView.mMenuButton);
-                //}
-                addView(circleMenuView);
-                mButtons.add(circleMenuView.mMenuButton);
-                //mMenuButton.setImageResource(IconEmotionMenuList.get(i));
-                circleMenuView.mMenuButton.setVisibility(INVISIBLE);
-                Log.d("Debug", "initButtons: circleMenuView.mMenuButton="
-                        + (Object) (circleMenuView.mMenuButton));
-            }
-            Log.d("Debug", "initButtons: num buttons=" + mButtons.size()
-                    + "mMenuButton.getID() = " + (Object)mMenuButton);
+                    //if (parent != null) {
+                    //    parent.removeView(circleMenuView.mMenuButton);
+                    //}
+                    addView(circleMenuView);
+                    mButtons.add(circleMenuView.mMenuButton);
+                    mMenuButton.setImageResource((icons.get(i)));
+                   // mButtons.add(mMenuButton.setImageResource(IconEmotionMenuList.get(i)));
+
+                    circleMenuView.mMenuButton.setVisibility(INVISIBLE);
+                    //Log.d("Debug", "initButtons: circleMenuView.mMenuButton="
+                        //+ (Object) (circleMenuView.mMenuButton));
+               }
+                    //Log.d("Debug", "initButtons: num buttons=" + mButtons.size()
+                            //+ "mMenuButton.getID() = " + (Object)mMenuButton);
 
             //return initButtons(context, icons, colors,  count);
 
-        }
+          }
+
         //occurs after first run to create the new view
         else { // in lower menu
 
@@ -722,7 +744,7 @@ public class CircleMenuView extends FrameLayout{
             @Override
             public void onAnimationEnd(Animator animation) {
                 mMenuButton.setRotation(60f);
-                mMenuButton.setImageResource(mIconHappiness);
+                mMenuButton.setImageResource(mIconMenu);
             }
         });
 
@@ -750,12 +772,12 @@ public class CircleMenuView extends FrameLayout{
     }
 
     public void setIconMenu(@DrawableRes int iconId) {
-        mIconHappiness = iconId;
+        mIconMenu = iconId;
     }
 
     @DrawableRes
     public int getIconMenu() {
-        return mIconHappiness;
+        return mIconMenu;
     }
 
     public void setIconClose(@DrawableRes int iconId) {
@@ -891,7 +913,7 @@ public class CircleMenuView extends FrameLayout{
             final float offset = open ? mDistance : 0f;
             final float scale = open ? 1f : 0f;
 
-            mMenuButton.setImageResource(open ? mIconClose : mIconHappiness);
+            mMenuButton.setImageResource(open ? mIconClose : mIconMenu);
             mMenuButton.setAlpha(open ? DEFAULT_CLOSE_ICON_ALPHA : 1f);
 
 
