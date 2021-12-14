@@ -62,7 +62,7 @@ public class CircleMenuView extends FrameLayout {
     private boolean mIsAnimating = false;
 
     private int mIconMenu;
-    private int mIconHappiness, mIconFear, mIconSadness, mIconAnger, mIconDisgust;
+    private int mIconOne, mIconTwo, mIconThree, mIconFour, mIconFive;
     private int mIconClose;
     private int mDurationRing;
     private int mLongClickDurationRing;
@@ -243,19 +243,19 @@ public class CircleMenuView extends FrameLayout {
 
             mIconMenu = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_menu_black_24dp);
             //new icons for basic emotions
-            mIconHappiness = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_happiness);
-            mIconSadness = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_sadness);
-            mIconAnger = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_anger);
-            mIconDisgust = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_disgust);
-            mIconFear = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_fear);
+            mIconOne = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_number_one);
+            mIconTwo = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_number_two);
+            mIconThree = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_number_three);
+            mIconFour = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_number_four);
+            mIconFive = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_text_number_five);
 
             mIconClose = a.getResourceId(R.styleable.CircleMenuView_icon_close, R.drawable.ic_close_black_24dp);
 
-            iconEmotionMenuList.add(mIconHappiness);
-            iconEmotionMenuList.add(mIconSadness);
-            iconEmotionMenuList.add(mIconAnger);
-            iconEmotionMenuList.add(mIconDisgust);
-            iconEmotionMenuList.add(mIconFear);
+            iconEmotionMenuList.add(mIconOne);
+            iconEmotionMenuList.add(mIconTwo);
+            iconEmotionMenuList.add(mIconThree);
+            iconEmotionMenuList.add(mIconFour);
+            iconEmotionMenuList.add(mIconFive);
 
             mDurationRing = a.getInteger(R.styleable.CircleMenuView_duration_ring, getResources().getInteger(android.R.integer.config_mediumAnimTime));
             mLongClickDurationRing = a.getInteger(R.styleable.CircleMenuView_long_click_duration_ring, getResources().getInteger(android.R.integer.config_longAnimTime));
@@ -283,13 +283,12 @@ public class CircleMenuView extends FrameLayout {
         this.menuIndex = menuIndex;
         this.numMenus = numMenus;
 
-
         Resources res = getResources();
         TypedArray emotion_icons = getResources().obtainTypedArray(R.array.emotion_icons);
-        Drawable drawable = emotion_icons.getDrawable(0);
+        Drawable drawable = emotion_icons.getDrawable(menuIndex);
 
-
-
+        mIconMenu = emotion_icons.getResourceId(menuIndex, -1);
+        mMenuButton.setImageResource(mIconMenu);
     }
     /**
      * Constructor for creation CircleMenuView in code, not in xml-layout.
@@ -303,7 +302,7 @@ public class CircleMenuView extends FrameLayout {
         final float density = context.getResources().getDisplayMetrics().density;
         final float defaultDistance = DEFAULT_DISTANCE * density;
 
-        //mIconMenu = R.drawable.ic_menu_black_24dp;
+        mIconMenu = R.drawable.ic_menu_black_24dp;
         mIconClose = R.drawable.ic_close_black_24dp;
 
         mDurationRing = getResources().getInteger(android.R.integer.config_mediumAnimTime);
@@ -437,8 +436,8 @@ public class CircleMenuView extends FrameLayout {
         View view = inflater.inflate(R.layout.circle_menu, this);
 
         mMenuButton = view.findViewById(R.id.circle_menu_main_button);
-
-            mMenuButton.setImageResource(mIconMenu);
+            //xxxxx
+            mMenuButton.setImageResource(mIconClose);
 
 
         Log.d("debug", "initMenu: Number of Buttons" + mButtons.size());
@@ -471,8 +470,10 @@ public class CircleMenuView extends FrameLayout {
             buttonTruth = false;
             for (int i = 0; i < icons.size(); i++) {
                 Log.d("Debug", "initButtons: Circle menu" + i);
+                //Log.d("Debug", "Index Through TypedArray " + emotion_icons.getIndex(i));
                 //mMenuButton
                     final CircleMenuView circleMenuView = new CircleMenuView(context, icons, colors, i, buttonsCount);
+
 
                     //ViewGroup parent = ((ViewGroup) circleMenuView.mMenuButton.getParent());
 
@@ -482,9 +483,10 @@ public class CircleMenuView extends FrameLayout {
                     addView(circleMenuView);
                     mButtons.add(circleMenuView.mMenuButton);
                     mMenuButton.setImageResource((icons.get(i)));
-                   // mButtons.add(mMenuButton.setImageResource(IconEmotionMenuList.get(i)));
+
 
                     circleMenuView.mMenuButton.setVisibility(INVISIBLE);
+
                     //Log.d("Debug", "initButtons: circleMenuView.mMenuButton="
                         //+ (Object) (circleMenuView.mMenuButton));
                }
@@ -498,7 +500,7 @@ public class CircleMenuView extends FrameLayout {
         //occurs after first run to create the new view
         else { // in lower menu
 
-            for (int i = 0; i < 3; i++) {
+            for (int i = 0; i < icons.size(); i++) {
                 Log.d("Debug", "initButtons: Submenu " + i);
 
                 final FloatingActionButton button = new FloatingActionButton(context);
@@ -520,6 +522,9 @@ public class CircleMenuView extends FrameLayout {
             //mMenuButton.setVisibility(INVISIBLE);
             Log.d("Debug", "initButtons: num submenu buttons=" + mButtons.size()
                     + "mMenuButton.getID() = " + (Object)mMenuButton);
+
+
+
 
         }
 /*
@@ -552,7 +557,7 @@ public class CircleMenuView extends FrameLayout {
             int delta = 90;
             // begin: this code works with 5 menus, but may fail for others
             if (menuIndex != -1) {
-                delta = 135 - (360*menuIndex)/ numMenus;
+                delta = 150 - (360*menuIndex)/ numMenus;
             } // :end
             final float angle = angleStep * i - delta;
             final float x = (float) Math.cos(Math.toRadians(angle)) * offset;
