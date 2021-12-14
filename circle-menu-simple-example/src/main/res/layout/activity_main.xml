@@ -19,12 +19,12 @@
                     app:button_icons="@array/icons"
                     android:orientation="vertical"/>
 
-                <com.ramotion.circlemenu.CircleMenuView
+                <!-- <com.ramotion.circlemenu.CircleMenuView
                     android:id="@+id/circle_menu1"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     app:button_colors="@array/colors"
                     app:button_icons="@array/icons"
-                    android:orientation="vertical"/>
+                    android:orientation="vertical"/> -->
         </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>

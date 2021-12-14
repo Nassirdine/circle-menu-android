@@ -65,7 +65,7 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        final CircleMenuView menu2 = findViewById(R.id.circle_menu1);
+        /*final CircleMenuView menu2 = findViewById(R.id.circle_menu1);
         menu.setEventListener(new CircleMenuView.EventListener() {
             @Override
             public void onMenuOpenAnimationStart(@NonNull CircleMenuView view) {
@@ -112,6 +112,6 @@ public class MainActivity extends AppCompatActivity {
             public void onButtonLongClickAnimationEnd(@NonNull CircleMenuView view, int index) {
                 Log.d("D", "onButtonLongClickAnimationEnd| index2: " + index);
             }
-        });
+        });*/
     }
 }

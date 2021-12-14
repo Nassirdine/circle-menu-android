@@ -55,8 +55,11 @@ public class CircleMenuView extends FrameLayout {
     private int menuIndex;
     private int numMenus;
 
+    private boolean buttonTruth;
+
+
     private FloatingActionButton mMenuButton;
-    private RingEffectView mRingView;
+    //private RingEffectView mRingView;
 
     private boolean mClosedState = true;
     private boolean mIsAnimating = false;
@@ -197,17 +200,17 @@ public class CircleMenuView extends FrameLayout {
             return result;
         }
     }
-
+    /** this gets called by find by id */
     public CircleMenuView(@NonNull Context context, @Nullable AttributeSet attrs) {
         this(context, attrs, 0);
     }
 
-
+    /** this gets called by find by id */
     public CircleMenuView(@NonNull Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         menuIndex = -1;
         numMenus = -1;
-
+        buttonTruth = true;
 
         if (attrs == null) {
             throw new IllegalArgumentException("No buttons icons or colors set");
@@ -335,18 +338,18 @@ public class CircleMenuView extends FrameLayout {
             return;
         }
 
-        mMenuButton.getContentRect(mButtonRect);
+        //mMenuButton.getContentRect(mButtonRect);
 
-        mRingView.setStrokeWidth(mButtonRect.width());
-        mRingView.setRadius(mRingRadius);
+        //mRingView.setStrokeWidth(mButtonRect.width());
+        //mRingView.setRadius(mRingRadius);
 
-        final LayoutParams lp = (LayoutParams) mRingView.getLayoutParams();
-        lp.width = right - left;
-        lp.height = bottom - top;
+        //final LayoutParams lp = (LayoutParams) mRingView.getLayoutParams();
+        //lp.width = right - left;
+        //lp.height = bottom - top;
     }
 
     private void initLayout(@NonNull Context context) {
-        LayoutInflater.from(context).inflate(R.layout.circle_menu, this, true);
+        //LayoutInflater.from(context).inflate(R.layout.circle_menu, this, true);
 
         setWillNotDraw(true);
         setClipChildren(false);
@@ -361,7 +364,7 @@ public class CircleMenuView extends FrameLayout {
         if (buttonTruth) {
             mDesiredSize = 2 * mDesiredSize;
         }
-        mRingView = findViewById(R.id.ring_view);
+        //mRingView = findViewById(R.id.ring_view);
     }
 
     /*
@@ -459,7 +462,6 @@ public class CircleMenuView extends FrameLayout {
         });
     }
 
-    private static boolean buttonTruth = true;
 
 
     private void initButtons(@NonNull Context context, @NonNull List<Integer> icons, @NonNull List<Integer> colors) {
@@ -596,39 +598,41 @@ public class CircleMenuView extends FrameLayout {
         });
 
         final float elevation = mMenuButton.getCompatElevation();
-        Log.d("Debug", "making ringview invisisble " + (Object)mRingView);
-        mRingView.setVisibility(View.INVISIBLE);
-        mRingView.setStartAngle(rStartAngle);
+        //Log.d("Debug", "making ringview invisisble " + (Object)mRingView);
+        //mRingView.setVisibility(View.INVISIBLE);
+        //mRingView.setStartAngle(rStartAngle);
 
         final ColorStateList csl = button.getBackgroundTintList();
         if (csl != null) {
-            mRingView.setStrokeColor(csl.getDefaultColor());
+          //  mRingView.setStrokeColor(csl.getDefaultColor());
         }
 
-        final ObjectAnimator ring = ObjectAnimator.ofFloat(mRingView, "angle", 360);
-        final ObjectAnimator scaleX = ObjectAnimator.ofFloat(mRingView, "scaleX", 1f, DEFAULT_RING_SCALE_RATIO);
-        final ObjectAnimator scaleY = ObjectAnimator.ofFloat(mRingView, "scaleY", 1f, DEFAULT_RING_SCALE_RATIO);
-        final ObjectAnimator visible = ObjectAnimator.ofFloat(mRingView, "alpha", 1f, 0f);
+        //final ObjectAnimator ring = ObjectAnimator.ofFloat(mRingView, "angle", 360);
+        //final ObjectAnimator scaleX = ObjectAnimator.ofFloat(mRingView, "scaleX", 1f, DEFAULT_RING_SCALE_RATIO);
+        //final ObjectAnimator scaleY = ObjectAnimator.ofFloat(mRingView, "scaleY", 1f, DEFAULT_RING_SCALE_RATIO);
+        //final ObjectAnimator visible = ObjectAnimator.ofFloat(mRingView, "alpha", 1f, 0f);
 
         final AnimatorSet lastSet = new AnimatorSet();
-        lastSet.playTogether(scaleX, scaleY, visible, getCloseMenuAnimation());
+        //lastSet.playTogether(scaleX, scaleY, visible, getCloseMenuAnimation());
+        lastSet.playTogether(getCloseMenuAnimation());
+        //final AnimatorSet firstSet = new AnimatorSet();
+        //firstSet.playTogether(rotateButton, ring);
+        //firstSet.playTogether(rotateButton);
 
-        final AnimatorSet firstSet = new AnimatorSet();
-        firstSet.playTogether(rotateButton, ring);
-
-        final AnimatorSet result = new AnimatorSet();
-        result.play(firstSet).before(lastSet);
+        final AnimatorSet result = lastSet;
+        //        new AnimatorSet();
+        //result.play(firstSet).before(lastSet);
         result.addListener(new AnimatorListenerAdapter() {
             @Override
             public void onAnimationStart(Animator animation) {
                 mIsAnimating = true;
 
                 if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                    bringChildToFront(mRingView);
+                    //bringChildToFront(mRingView);
                     bringChildToFront(button);
                 } else {
                     button.setCompatElevation(elevation + 1);
-                    ViewCompat.setZ(mRingView, elevation + 1);
+                    //ViewCompat.setZ(mRingView, elevation + 1);
 
                     for (View b : mButtons) {
                         if (b != button) {
@@ -637,9 +641,9 @@ public class CircleMenuView extends FrameLayout {
                     }
                 }
 
-                mRingView.setScaleX(1f);
-                mRingView.setScaleY(1f);
-                mRingView.setVisibility(View.VISIBLE);
+                //mRingView.setScaleX(1f);
+                //mRingView.setScaleY(1f);
+                //mRingView.setVisibility(View.VISIBLE);
             }
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -650,7 +654,7 @@ public class CircleMenuView extends FrameLayout {
                         ((FloatingActionButton) b).setCompatElevation(elevation);
                     }
 
-                    ViewCompat.setZ(mRingView, elevation);
+                    //ViewCompat.setZ(mRingView, elevation);
                 }
             }
         });
