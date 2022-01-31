@@ -15,28 +15,32 @@ import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.Icon;
 import android.os.Build;
+import android.text.Layout;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
 import android.view.animation.OvershootInterpolator;
 import android.widget.FrameLayout;
-import android.widget.LinearLayout;
+import android.widget.ImageView;
 
+import com.example.textdrawable.drawable.TextDrawable;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
+import java.io.IOException;
+import java.nio.Buffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.Scanner;
 
 import androidx.annotation.AttrRes;
 import androidx.annotation.DrawableRes;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.core.view.ViewCompat;
 
 
 /**
@@ -205,6 +209,8 @@ public class CircleMenuView extends FrameLayout {
         this(context, attrs, 0);
     }
 
+
+
     /** this gets called by find by id */
     public CircleMenuView(@NonNull Context context, @Nullable AttributeSet attrs, @AttrRes int defStyleAttr) {
         super(context, attrs, defStyleAttr);
@@ -220,7 +226,28 @@ public class CircleMenuView extends FrameLayout {
         final List<Integer> icons;
         final List<Integer> colors;
 
+        BufferedReader reader;
+        List<String> fileInput = new ArrayList<>();
+
+        try {
+             reader = new BufferedReader(new FileReader(
+                    "C:\\Users\\jacob\\StudioProjects\\ActivityApp\\circle-menu-android\\circle-menu\\src\\main\\java\\com\\ramotion\\circlemenu\\emotioninput.txt"));
+             String line = reader.readLine();
+             while(line != null){
+                 fileInput.add(line);
+                 line = reader.readLine();
+             }
+                reader.close();
+            }catch(IOException e){
+                e.printStackTrace();
+            }
+
+
+
+
+
         List<Integer> iconEmotionMenuList = new ArrayList<>();
+
         final TypedArray a = context.getTheme().obtainStyledAttributes(attrs, R.styleable.CircleMenuView, 0, 0);
         try {
             final int iconArrayId = a.getResourceId(R.styleable.CircleMenuView_button_icons, 0);
@@ -242,6 +269,49 @@ public class CircleMenuView extends FrameLayout {
             } finally {
                 iconsIds.recycle();
             }
+
+
+
+            //creates five total images for 5 buttons
+            ImageView mImageOne = null, mImageTwo = null, mImageThree = null, mImageFour = null, mImageFive = null;
+            //creates the five texts of the images
+            TextDrawable textOne  = new TextDrawable(context);
+            TextDrawable textTwo = new TextDrawable(context);
+            TextDrawable textThree = new TextDrawable(context);
+            TextDrawable textFour= new TextDrawable(context);
+            TextDrawable textFive = new TextDrawable(context);
+
+            //set textOne
+            textOne.setText(fileInput.get(1));
+            textOne.setTextAlign(Layout.Alignment.ALIGN_CENTER);
+            //set textTwo
+            textTwo.setText(fileInput.get(2));
+            textTwo.setTextAlign(Layout.Alignment.ALIGN_CENTER);
+            //set textThree
+            textThree.setText(fileInput.get(3));
+            textThree.setTextAlign(Layout.Alignment.ALIGN_CENTER);
+            //set textFour
+            textFour.setText(fileInput.get(4));
+            textFour.setTextAlign(Layout.Alignment.ALIGN_CENTER);;
+            //set textFive
+            textFive.setText(fileInput.get(5));
+            textFive.setTextAlign(Layout.Alignment.ALIGN_CENTER);
+
+            //sets all image drawables
+            mImageOne.setImageDrawable(textOne);
+            mImageTwo.setImageDrawable(textTwo);
+            mImageThree.setImageDrawable(textThree);
+            mImageFour.setImageDrawable(textFour);
+            mImageFive.setImageDrawable(textFive);
+
+            //list full of the images taken from the file input
+            List<ImageView> inputImages = new ArrayList<>();
+
+            inputImages.add(mImageOne);
+            inputImages.add(mImageTwo);
+            inputImages.add(mImageThree);
+            inputImages.add(mImageFour);
+            inputImages.add(mImageFive);
 
 
             mIconMenu = a.getResourceId(R.styleable.CircleMenuView_icon_menu, R.drawable.ic_menu_black_24dp);
@@ -276,8 +346,11 @@ public class CircleMenuView extends FrameLayout {
 
         initLayout(context);
         initMenu(menuButtonColor);
+        //Need to put inputImages in here but the list needs to be an integer list
         initButtons(context, iconEmotionMenuList, colors);
     }
+
+
 
 
     public CircleMenuView(@NonNull Context context, @NonNull List<Integer> icons, @NonNull List<Integer> colors,
@@ -559,7 +632,7 @@ public class CircleMenuView extends FrameLayout {
             int delta = 90;
             // begin: this code works with 5 menus, but may fail for others
             if (menuIndex != -1) {
-                delta = 150 - (360*menuIndex)/ numMenus;
+                delta = 130 - (360*menuIndex)/ numMenus;
             } // :end
             final float angle = angleStep * i - delta;
             final float x = (float) Math.cos(Math.toRadians(angle)) * offset;
